@@ -1,0 +1,18 @@
+{
+    "name": "admin/php_functions_test",
+    "autoload": {
+        "psr-4": {
+            "Admin\\PhpFunctionsTest\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "liufanrong",
+            "email": "252621269@qq.com"
+        }
+    ],
+    "require": {
+        "workerman/workerman": "^4.2",
+        "phpseclib/phpseclib": "^3.0"
+    }
+}

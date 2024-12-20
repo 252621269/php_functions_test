@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
+</head>
+<body>
+<input type="text" id="messageInput" placeholder="Enter your message">
+<button id="sendButton">Send</button>
+<div id="messages"></div>
+
+<script>
+    const ws = new WebSocket('ws://localhost:8666');
+    const secretKey = CryptoJS.enc.Utf8.parse('secretkey1234567'); // 使用16字节的密钥
+    const iv = CryptoJS.enc.Utf8.parse('1234567890123456');
+
+    ws.onopen = function() {
+        console.log('Connected to the server');
+    };
+
+    ws.onmessage = function(event) {
+        const encryptedData = event.data;
+        const decryptedBytes = CryptoJS.AES.decrypt(encryptedData, secretKey, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+        const decryptedMessage = decryptedBytes.toString(CryptoJS.enc.Utf8);
+        const messagesDiv = document.getElementById('messages');
+        const newMessage = document.createElement('div');
+        newMessage.textContent = 'Server: ' + decryptedMessage;
+        messagesDiv.appendChild(newMessage);
+    };
+
+    ws.onclose = function() {
+        console.log('Disconnected from the server');
+    };
+
+    document.getElementById('sendButton').onclick = function() {
+        const messageInput = document.getElementById('messageInput');
+        const message = messageInput.value;
+        const encryptedMessage = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(message), secretKey, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString();
+        ws.send(encryptedMessage);
+
+        const messagesDiv = document.getElementById('messages');
+        const newMessage = document.createElement('div');
+        newMessage.textContent = 'You: ' + message;
+        messagesDiv.appendChild(newMessage);
+
+        messageInput.value = '';
+    };
+</script>
+</body>
+</html>
